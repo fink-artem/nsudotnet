@@ -15,72 +15,64 @@ namespace Fink.Nsudotnet.LinesCounter
             }
             string[] fileNamesArray = Directory.GetFiles(Directory.GetCurrentDirectory(), args[0], SearchOption.AllDirectories);
             string line;
-            Boolean commentStarted = false;
-            int firstCommentPosition;
-            int secondCommentPosition;
-            int quotePosition;
-            int counter = 0;
+            int answer = 0;
+            int length;
+            Boolean comment = false;
+            Boolean sym;
             foreach (var item in fileNamesArray)
             {
                 using (System.IO.StreamReader file = new System.IO.StreamReader(item))
                 {
                     while (!file.EndOfStream)
                     {
-                        line = file.ReadLine().Trim();
-                        quotePosition = line.IndexOf("\"");
-                        if (quotePosition != -1)
+                        line = file.ReadLine();
+                        length  = line.Length;
+                        sym = false;
+                        for (int i = 0; i < length; i++)
                         {
-                            line = line.Remove(quotePosition + 1, line.LastIndexOf("\"") - quotePosition - 1);
-                        }
-                        firstCommentPosition = line.IndexOf("//");
-                        if (firstCommentPosition != -1)
-                        {
-                            line = line.Remove(firstCommentPosition);
-                        }
-                        while (true)
-                        {
-                            if (commentStarted)
+                            if (comment)
                             {
-                                secondCommentPosition = line.IndexOf("*/");
-                                if (secondCommentPosition != -1)
+                                if (line[i] == '*')
                                 {
-                                    commentStarted = false;
-                                    firstCommentPosition = line.IndexOf("/*");
-                                    if (firstCommentPosition != -1)
+                                    if (i < length - 1 && line[i + 1] == '/')
                                     {
-                                        line = line.Remove(firstCommentPosition, secondCommentPosition - firstCommentPosition + 2);
+                                        comment = false;
+                                        i++;
                                     }
-                                    else
-                                    {
-                                        line = line.Remove(0, secondCommentPosition + 2);
-                                    }
-                                }
-                                else
-                                {
-                                    break;
                                 }
                             }
                             else
                             {
-                                secondCommentPosition = line.IndexOf("/*");
-                                if (secondCommentPosition != -1)
+                                if (line[i] == '/')
                                 {
-                                    commentStarted = true;
+                                    if (i < length - 1 && line[i + 1] == '/')
+                                    {
+                                        break;
+                                    }
+                                    else if (i < length - 1 && line[i + 1] == '*')
+                                    {
+                                        comment = true;
+                                        i++;
+                                    }
+                                    else
+                                    {
+                                        sym = true;
+                                    }
                                 }
                                 else
                                 {
-                                    break;
+                                    sym = true;
                                 }
                             }
                         }
-                        if (line.Length != 0 && !commentStarted)
+                        if (sym)
                         {
-                            counter++;
+                            answer++;
                         }
                     }
                 }
             }
-            Console.WriteLine(counter);
+            Console.WriteLine(answer);
             Console.ReadKey();
         }
     }
