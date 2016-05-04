@@ -4,14 +4,14 @@ namespace Fink.Nsudotnet.NumberGuesser
 {
     class NumberGuesser
     {
-        const int START = 0;
-        const int END = 100;
-        const int HISTORY_SIZE = 1000;
-        const char MORE = '>';
-        const char LESS = '<';
-        const char EQUAL = '=';
-        const string EXIT = "q";
-        static string[] INSULT = {"ты неудачник" , "тебе ещё учиться и учиться" , "ну как же так", "я так долго не выдержу"};
+        const int Start = 0;
+        const int End = 100;
+        const int HistorySize = 1000;
+        const char More = '>';
+        const char Less = '<';
+        const char Equal = '=';
+        const string Exit = "q";
+        static string[] Insult = {"ты неудачник" , "тебе ещё учиться и учиться" , "ну как же так", "я так долго не выдержу"};
 
         static void Main(string[] args)
         {
@@ -20,23 +20,23 @@ namespace Fink.Nsudotnet.NumberGuesser
             Console.WriteLine("Cкажи, как тебя зовут?");
             string name = Console.ReadLine();
             Random random = new Random();
-            int guessNumber = random.Next(END);
+            int guessNumber = random.Next(End);
             Console.WriteLine("Я загадал число, попробуй угадать.");
             int receivedNumber = -1;
-            int start = START;
-            int end = END;
+            int start = Start;
+            int end = End;
             string str = "";
             int attempt = 0;
             DateTime date = DateTime.Now;
-            int[] attemptHistory = new int[HISTORY_SIZE];
-            char[] charHistory = new char[HISTORY_SIZE];
+            int[] attemptHistory = new int[HistorySize];
+            char[] charHistory = new char[HistorySize];
             while (true)
             {
                 Console.WriteLine("Число от {0} до {1}", start, end);
                 try
                 {
                     str = Console.ReadLine();
-                    receivedNumber = Int32.Parse(str);
+                    receivedNumber = int.Parse(str);
                     if (receivedNumber < start || receivedNumber >= end)
                     {
                         Console.WriteLine("Давай попробуем ещё раз.");
@@ -47,20 +47,28 @@ namespace Fink.Nsudotnet.NumberGuesser
                     {
                         Console.WriteLine("Я загадал число побольше.");
                         start = receivedNumber;
-                        charHistory[attempt] = MORE;
+                        charHistory[attempt] = More;
                     }
                     else if (receivedNumber > guessNumber)
                     {
                         Console.WriteLine("Я загадал число поменьше.");
                         end = receivedNumber;
-                        charHistory[attempt] = LESS;
+                        charHistory[attempt] = Less;
                     }
                     else
                     {
-                        charHistory[attempt] = EQUAL;
+                        charHistory[attempt] = Equal;
                         Console.WriteLine("Ура мы его нашли.");
                         Console.WriteLine("{0}, вы совершили {1} попыток", name, attempt + 1);
-                        Console.WriteLine("Вы потратили {0} минут", (DateTime.Now.Minute - date.Minute));
+                        TimeSpan time = DateTime.Now.Subtract(date);
+                        if (time.Hours != 0)
+                        {
+                            Console.WriteLine("Вы потратили {0} минут {1} часов", time.Minutes,time.Hours);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Вы потратили {0} минут", time.Minutes);
+                        }
                         Console.WriteLine("Ваша история:");
                         for (int i = 0; i <= attempt; i++)
                         {
@@ -71,12 +79,12 @@ namespace Fink.Nsudotnet.NumberGuesser
                     attempt++;
                     if (attempt % 4 == 0)
                     {
-                        Console.WriteLine("{0}, {1}",name, INSULT[random.Next(INSULT.Length)]);
+                        Console.WriteLine("{0}, {1}",name, Insult[random.Next(Insult.Length)]);
                     }
                 }
                 catch (FormatException e)
                 {
-                    if (EXIT == str)
+                    if (Exit == str)
                     {
                         Console.WriteLine("Извините.");
                         break;
