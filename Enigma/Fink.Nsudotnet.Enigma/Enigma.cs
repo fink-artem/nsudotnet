@@ -19,14 +19,16 @@ namespace Fink.Nsudotnet.Enigma
                 {
                     using (StreamWriter keyStream = new StreamWriter("file.key.txt"))
                     {
-                        SymmetricAlgorithm algorithm = getAlgorithm(algorithmName);
+                        SymmetricAlgorithm algorithm = GetAlgorithm(algorithmName);
                         algorithm.GenerateKey();
                         algorithm.GenerateIV();
                         keyStream.WriteLine(Convert.ToBase64String(algorithm.Key));
                         keyStream.WriteLine(Convert.ToBase64String(algorithm.IV));
-                        CryptoStream cryptoStream = new CryptoStream(outFileStream, algorithm.CreateEncryptor(algorithm.Key, algorithm.IV), CryptoStreamMode.Write);
-                        inFileStream.CopyTo(cryptoStream);
-                        cryptoStream.FlushFinalBlock();
+                        using (CryptoStream cryptoStream = new CryptoStream(outFileStream, algorithm.CreateEncryptor(algorithm.Key, algorithm.IV), CryptoStreamMode.Write))
+                        {
+                            inFileStream.CopyTo(cryptoStream);
+                            cryptoStream.FlushFinalBlock();
+                        }
                     }
                 }
             }
@@ -40,18 +42,20 @@ namespace Fink.Nsudotnet.Enigma
                 {
                     using (StreamReader keyStream = new StreamReader(keyFile))
                     {
-                        SymmetricAlgorithm algorithm = getAlgorithm(algorithmName);
+                        SymmetricAlgorithm algorithm = GetAlgorithm(algorithmName);
                         byte[] key = Convert.FromBase64String(keyStream.ReadLine());
                         byte[] IV = Convert.FromBase64String(keyStream.ReadLine());
-                        CryptoStream cryptoStream = new CryptoStream(outFileStream, algorithm.CreateDecryptor(key, IV), CryptoStreamMode.Write);
-                        inFileStream.CopyTo(cryptoStream);
-                        cryptoStream.FlushFinalBlock();
+                        using (CryptoStream cryptoStream = new CryptoStream(outFileStream, algorithm.CreateDecryptor(key, IV), CryptoStreamMode.Write))
+                        {
+                            inFileStream.CopyTo(cryptoStream);
+                            cryptoStream.FlushFinalBlock();
+                        }
                     }
                 }
             }
         }
 
-        static SymmetricAlgorithm getAlgorithm(String algorithm)
+        static SymmetricAlgorithm GetAlgorithm(String algorithm)
         {
             switch (algorithm)
             {
